@@ -1,4 +1,4 @@
-﻿// Author: Matthew Price
+// Author: Matthew Price
 // Created: 15/10/2019
 // Licence: Standard MIT Licence
 
@@ -9,10 +9,21 @@ using UnityEditor;
 [ExecuteInEditMode]
 public class GroupControl : MonoBehaviour
 {
-    [MenuItem("GameObject/Group Selection %G", false, 0)]
+    [MenuItem("GameObject/Group Selection %G", false, 0)] // Keyboard Shortcut not working
     static void GroupSelection()
     {
-        GameObject group = new GameObject();
+        GameObject group;
+
+        if (GameObject.Find("New Group"))
+        {
+            group = GameObject.Find("New Group");
+        }
+        else
+        {
+            group = new GameObject();
+
+            group.name = "New Group";
+        }
 
         Transform avgParent = group.transform.parent;
         List<Transform> parents = new List<Transform>();
@@ -60,6 +71,20 @@ public class GroupControl : MonoBehaviour
             obj.transform.parent = group.transform;
         }
 
-        group.name = "New Group";
+        // Set rename delay
+        timer = EditorApplication.timeSinceStartup + 0.3d;
+        EditorApplication.update += ForceRename;
+    }
+
+    private static double timer = 0.0d;
+
+    private static void ForceRename() // Force rename not quite working either
+    {
+        if (timer <= EditorApplication.timeSinceStartup)
+        {
+            EditorApplication.update -= ForceRename;
+            var e = new Event { keyCode = KeyCode.F2, type = EventType.KeyDown };
+            EditorWindow.focusedWindow.SendEvent(e); 
+        }
     }
 }
